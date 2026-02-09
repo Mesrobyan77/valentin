@@ -255,7 +255,7 @@ function App() {
               onMouseEnter={handleNoHover}
               onMouseMove={handleNoMouseMove}
               onTouchStart={handleNoHover}
-              onClick={handleNoClick}
+              onClick={handleNoHover}
               disabled={answerNo}
               className="bg-gradient-to-r from-gray-400 to-gray-500 text-white px-6 md:px-12 py-3 md:py-6 rounded-full text-xl md:text-2xl font-black shadow-lg transition-all duration-150 fixed hover:from-gray-500 hover:to-gray-600"
               style={{
