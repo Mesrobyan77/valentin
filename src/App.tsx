@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Heart, Sparkles, Star } from "lucide-react";
 
 function App() {
@@ -14,16 +14,57 @@ function App() {
   const [confetti, setConfetti] = useState<
     Array<{ id: number; x: number; y: number; delay: number }>
   >([]);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const glowRef = useRef<HTMLDivElement | null>(null);
+  const mousePosRef = useRef({ x: 0, y: 0 });
+
+  const floatingHearts = useMemo(() => {
+    return [...Array( 50)].map((_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      delay: Math.random() * 5,
+    }));
+  }, []);
+
+  const answeredHearts = useMemo(() => {
+    return [...Array(50)].map((_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      size: 20 + Math.random() * 30,
+      delay: Math.random() * 5,
+      duration: 15 + Math.random() * 10,
+    }));
+  }, []);
 
   useEffect(() => {
+    let raf = 0;
+
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
+      mousePosRef.current = { x: e.clientX, y: e.clientY };
+
+      // update the glow smoothly without re-rendering
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        if (!glowRef.current) return;
+        glowRef.current.style.setProperty("--mx", `${e.clientX}px`);
+        glowRef.current.style.setProperty("--my", `${e.clientY}px`);
+      });
     };
+
     window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setYesButtonScale((prev) => (prev === 1 ? 1.15 : 1));
+    }, 600);
+    return () => clearInterval(interval);
   }, []);
 
   const handleYesClick = () => {
@@ -45,20 +86,32 @@ function App() {
   const handleNoHover = () => {
     if (!containerRef.current) return;
 
-    const container = containerRef.current;
-    const rect = container.getBoundingClientRect();
+    const rect = containerRef.current.getBoundingClientRect();
 
-    // Փոքր էկրանների համար ավելի փոքր չափսեր ենք հաշվարկում
+    // small screens: smaller button math
     const btnWidth = window.innerWidth < 640 ? 100 : 120;
     const btnHeight = window.innerWidth < 640 ? 50 : 60;
     const padding = 20;
 
-    let newX = Math.random() * (rect.width - btnWidth - 2 * padding) + rect.left + padding;
-    let newY = Math.random() * (rect.height - btnHeight - 2 * padding) + rect.top + padding;
+    // random inside the card rect (in viewport px)
+    let newX =
+      Math.random() * (rect.width - btnWidth - 2 * padding) +
+      rect.left +
+      padding;
+    let newY =
+      Math.random() * (rect.height - btnHeight - 2 * padding) +
+      rect.top +
+      padding;
 
-    // Էկրանի սահմաններից դուրս չգալու համար
-    newX = Math.min(Math.max(padding, newX), window.innerWidth - btnWidth - padding);
-    newY = Math.min(Math.max(padding, newY), window.innerHeight - btnHeight - padding);
+    // clamp to screen
+    newX = Math.min(
+      Math.max(padding, newX),
+      window.innerWidth - btnWidth - padding
+    );
+    newY = Math.min(
+      Math.max(padding, newY),
+      window.innerHeight - btnHeight - padding
+    );
 
     setNoButtonPosition({ x: newX, y: newY });
     setNoButtonRotation((prev) => prev + Math.random() * 180 - 90);
@@ -76,16 +129,16 @@ function App() {
       <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-red-50 flex items-center justify-center p-4 overflow-hidden relative">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {[...Array(15)].map((_, i) => (
+          {answeredHearts.map((h) => (
             <Heart
-              key={i}
+              key={h.id}
               className="absolute text-pink-300/40 animate-float-hearts"
               style={{
-                left: `${Math.random() * 100}%`,
+                left: `${h.left}%`,
                 top: "110%",
-                width: `${20 + Math.random() * 30}px`,
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${15 + Math.random() * 10}s`,
+                width: `${h.size}px`,
+                animationDelay: `${h.delay}s`,
+                animationDuration: `${h.duration}s`,
               }}
             />
           ))}
@@ -100,6 +153,31 @@ function App() {
             <p className="text-xl sm:text-2xl text-pink-600 font-bold mb-8 animate-bounce">
               Forever your DODO 💕
             </p>
+
+            {answer === "yes" &&
+              confetti.map((item) => (
+                <div
+                  key={item.id}
+                  className="absolute w-3 h-3 animate-pulse"
+                  style={{
+                    left: `${item.x}%`,
+                    top: `-10px`,
+                    background: [
+                      "#ff69b4",
+                      "#ff1493",
+                      "#ffc0cb",
+                      "#ffb6d9",
+                      "#ff69b4",
+                    ][Math.floor(Math.random() * 5)],
+                    animation: `fall ${2 + Math.random() * 2}s linear forwards`,
+                    animationDelay: `${item.delay}s`,
+                    borderRadius: "50%",
+                    boxShadow: "0 0 10px currentColor",
+                  }}
+                />
+              ))}
+
+            <style>{`@keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }`}</style>
           </div>
         </div>
       </div>
@@ -121,15 +199,40 @@ function App() {
         }
       `}</style>
 
-      {/* Floating Icons */}
+      {/* ✅ NEW: mouse-follow glow layer (no rerender needed) */}
+      <div
+        ref={glowRef}
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          // defaults until first mouse move
+          ["--mx" as any]: "50%",
+          ["--my" as any]: "50%",
+          background:
+            "radial-gradient(220px circle at var(--mx) var(--my), rgba(255, 255, 255, 0.35), transparent 65%)",
+        }}
+      />
+
+      {/* Floating Icons (stable positions) */}
+
+      <div className="absolute top-10 right-10 text-6xl animate-bounce opacity-70" style={{animationDelay: '0s'}}>✨</div>
+      <div className="absolute bottom-20 left-10 text-5xl animate-bounce opacity-70" style={{animationDelay: '0.5s'}}>🌹</div>
+      <div className="absolute top-1/3 left-20 text-4xl animate-bounce opacity-70" style={{animationDelay: '0.2s'}}>💖</div>
+      <div className="absolute bottom-1/4 right-20 text-5xl animate-bounce opacity-70" style={{animationDelay: '0.7s'}}>✨</div>
       <div className="absolute inset-0 pointer-events-none opacity-30">
-        {[...Array(20)].map((_, i) => (
-          <Heart key={i} className="absolute animate-float" style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 5}s`
-          }} size={24} />
-        ))}
+        {floatingHearts.map((h) => {
+          return (
+            <Heart
+              key={h.id}
+              className="absolute animate-float"
+              style={{
+                left: `${h.left}%`,
+                top: `${h.top}%`,
+                animationDelay: `${5}s`,
+              }}
+              size={24 + Math.random() * 8 + 24}
+            />
+          );
+        })}
       </div>
 
       <div className="text-center z-10 w-full max-w-4xl px-2">
@@ -170,8 +273,8 @@ function App() {
               onTouchStart={handleNoHover}
               onClick={handleNoHover}
               className={`w-full sm:w-auto bg-gray-400 text-white px-10 py-4 sm:px-16 sm:py-6 rounded-full text-2xl sm:text-3xl font-black shadow-lg transition-all duration-200 ${
-                noButtonPosition 
-                  ? "fixed !w-[140px] !h-[60px] sm:!w-[180px] sm:!h-[80px] flex items-center justify-center p-0" 
+                noButtonPosition
+                  ? "fixed !w-[140px] !h-[60px] sm:!w-[180px] sm:!h-[80px] flex items-center justify-center p-0"
                   : "relative"
               }`}
               style={{
@@ -184,10 +287,6 @@ function App() {
               No
             </button>
           </div>
-          
-          <p className="mt-8 text-xs sm:text-sm text-pink-400 italic">
-            (The No button is shy... try clicking it!)
-          </p>
         </div>
       </div>
     </div>
