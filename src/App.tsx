@@ -13,19 +13,52 @@ function App() {
   const [confetti, setConfetti] = useState<
     Array<{ id: number; x: number; y: number; delay: number }>
   >([]);
-
+  const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const glowRef = useRef<HTMLDivElement | null>(null);
   const mousePosRef = useRef({ x: 0, y: 0 });
 
   const emojis = [
-    "💖", "✨", "🌸", "🎀", "💫", "💋", "💛", "💚", "💘", "🥰",
-    "💗", "💓", "💞", "💝", "🧸", "🎁",, "🌺", "💎",
-    "🌹", "💐", "🎈", "🩷", "🤍", "💌", "🌙"
+    "💖",
+    "✨",
+    "🌸",
+    "🎀",
+    "💫",
+    "💋",
+    "💛",
+    "💚",
+    "💘",
+    "🥰",
+    "💗",
+    "💓",
+    "💞",
+    "💝",
+    "🧸",
+    "🎁",
+    ,
+    "🌺",
+    "💎",
+    "🌹",
+    "💐",
+    "🎈",
+    "🩷",
+    "🤍",
+    "💌",
+    "🌙",
   ];
 
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+
+    checkMobile(); // Check on mount
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   const floatingHearts = useMemo(() => {
-    return [...Array(700)].map((_, i) => ({
+    return [...Array(isMobile ? 50 : 700)].map((_, i) => ({
       id: i,
       left: Math.random() * 100,
       top: Math.random() * 100,
@@ -34,7 +67,7 @@ function App() {
   }, []);
 
   const answeredHearts = useMemo(() => {
-    return [...Array(600)].map((_, i) => ({
+    return [...Array(isMobile ? 50 : 700)].map((_, i) => ({
       id: i,
       left: Math.random() * 100,
       size: 20 + Math.random() * 30,
@@ -96,10 +129,9 @@ function App() {
     const btnHeight = window.innerWidth < 540 ? 50 : 60;
     const padding = 0;
 
-    let newX =
-      Math.random() * (rect.width - btnWidth - 2 * padding) -btnWidth
+    let newX = Math.random() * (rect.width - btnWidth - 2 * padding) - btnWidth;
     let newY =
-      Math.random() * (rect.height - btnHeight - 2 * padding) -btnWidth;
+      Math.random() * (rect.height - btnHeight - 2 * padding) - btnWidth;
 
     newX = Math.min(
       Math.max(padding, newX),
@@ -157,7 +189,6 @@ function App() {
             <p className="text-xl sm:text-2xl text-pink-600 font-bold mb-8 animate-bounce">
               Forever your DODO 💕
             </p>
-
 
             {answer === "yes" &&
               confetti.map((item) => (
@@ -225,20 +256,93 @@ function App() {
         }}
       />
 
-      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
-        {floatingHearts.map((h) => (
-          <span
-            key={h.id}
-            className="absolute animate-float text-3xl"
-            style={{
-              left: `${h.left}%`,
-              top: `${h.top}%`,
-              animationDelay: `${h.delay}s`,
-            }}
-          >
-            {emojis[h.id % emojis.length]}
-          </span>
-        ))}
+      {/* Added overflow-hidden to prevent scrollbars */}
+      <div
+        className="absolute inset-0 pointer-events-none overflow-hidden"
+        style={{ zIndex: 1 }}
+      >
+        {floatingHearts.map((h, i) =>
+          i % 2 === 0 ? (
+            <>
+              <span
+                key={h.id}
+                className="absolute text-3xl"
+                style={{
+                  left: `${h.left}%`,
+                  top: `${h.top}%`,
+                  animationDuration: `${21 + (h.id % 5)}s`,
+                  animationDelay: "0s",
+                  animationName: "float-around",
+                  animationIterationCount: "infinite",
+                  animationTimingFunction: "ease-in-out",
+                }}
+              >
+                {emojis[h.id % emojis.length]}
+              </span>
+              <span
+                key={h.id}
+                className="absolute text-3xl"
+                style={{
+                  left: `${h.left}%`,
+                  top: `${h.top}%`,
+                  animationDuration: `${21 + (h.id % 5)}s`,
+                  animationDelay: "0s",
+                  animationName: "animate-float-reverse",
+                  animationIterationCount: "infinite",
+                  animationTimingFunction: "ease-in-out",
+                }}
+              >
+                {emojis[h.id % emojis.length]}
+              </span>
+              <span
+                key={h.id}
+                className="absolute text-3xl"
+                style={{
+                  left: `${h.left}%`,
+                  top: `${h.top}%`,
+                  animationDuration: `${21 + (h.id % 5)}s`,
+                  animationDelay: "0s",
+                  animationName: "animate-float-up",
+                  animationIterationCount: "infinite",
+                  animationTimingFunction: "ease-in-out",
+                }}
+              >
+                {emojis[h.id % emojis.length]}
+              </span>
+              <span
+                key={h.id}
+                className="absolute text-3xl"
+                style={{
+                  left: `${h.left}%`,
+                  top: `${h.top}%`,
+                  animationDuration: `${21 + (h.id % 5)}s`,
+                  animationDelay: "0s",
+                  animationName: "animate-float-down",
+                  animationIterationCount: "infinite",
+                  animationTimingFunction: "ease-in-out",
+                }}
+              >
+                {emojis[h.id % emojis.length]}
+              </span>
+            </>
+          ) : (
+            <span
+              key={h.id}
+              className="absolute text-2xl"
+              style={{
+                left: `${h.left}%`,
+                top: `${h.top}%`,
+                animationDuration: `${15 + (h.id % 5)}s`,
+                animationDelay: "0s",
+                animationName: "float-around-reverse",
+                animationIterationCount: "infinite",
+                animationTimingFunction: "ease-in-out",
+              }}
+            >
+              {emojis[h.id % emojis.length]}
+            </span>
+          )
+        )}
       </div>
 
       <div className="text-center z-10 w-full max-w-4xl px-2">
