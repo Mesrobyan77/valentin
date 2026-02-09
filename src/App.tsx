@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import Know from "./Know";
 
 function App() {
   const [answered, setAnswered] = useState(false);
@@ -18,7 +19,7 @@ function App() {
   const glowRef = useRef<HTMLDivElement | null>(null);
   const mousePosRef = useRef({ x: 0, y: 0 });
 
-  const emojis = [
+  const emojis:string[] = [
     "💖",
     "✨",
     "🌸",
@@ -35,7 +36,6 @@ function App() {
     "💝",
     "🧸",
     "🎁",
-    ,
     "🌺",
     "💎",
     "🌹",
@@ -155,76 +155,13 @@ function App() {
 
   if (answered) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-red-50 flex items-center justify-center p-4 overflow-hidden relative">
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {answeredHearts.map((h) => (
-            <span
-              key={h.id}
-              className="absolute animate-float-hearts"
-              style={{
-                left: `${h.left}%`,
-                top: "110%",
-                fontSize: `${Math.max(18, h.size)}px`,
-                animationDelay: `${h.delay}s`,
-                animationDuration: `${h.duration}s`,
-              }}
-            >
-              {emojis[h.id % emojis.length]}
-            </span>
-          ))}
-        </div>
-
-        <div className="text-center z-10 w-full max-w-lg animate-scaleIn">
-          <div className="bg-white/90 backdrop-blur-xl rounded-[40px] shadow-2xl p-8 sm:p-16 border-2 border-pink-200/50">
-            <div className="mx-auto mb-6 flex items-center justify-center">
-              <span className="animate-heartbeat text-[80px] sm:text-[128px]">
-                💖
-              </span>
-            </div>
-
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-black bg-gradient-to-r from-red-500 to-rose-500 bg-clip-text text-transparent mb-4">
-              Tenc el pti liner
-            </h1>
-
-            <p className="text-xl sm:text-2xl text-pink-600 font-bold mb-8 animate-bounce">
-              Forever your DODO 💕
-            </p>
-
-            {answer === "yes" &&
-              confetti.map((item) => (
-                <div
-                  key={item.id}
-                  className="absolute w-3 h-3 animate-pulse"
-                  style={{
-                    left: `${item.x}%`,
-                    top: `-10px`,
-                    background: "#ff69b4",
-                    animation: `fall ${5 + Math.random() * 5}s linear forwards`,
-                    animationDelay: `${item.delay}s`,
-                    borderRadius: "50%",
-                    boxShadow: "0 0 10px currentColor",
-                  }}
-                />
-              ))}
-
-            <style>{`
-              @keyframes fall {
-                to { transform: translateY(100vh) rotate(360deg); opacity: 0; }
-              }
-              @keyframes floatHearts {
-                0% { transform: translateY(0); opacity: 0; }
-                10% { opacity: 1; }
-                100% { transform: translateY(-120vh) rotate(25deg); opacity: 0; }
-              }
-              .animate-float-hearts {
-                animation-name: floatHearts;
-                animation-timing-function: linear;
-                animation-iteration-count: infinite;
-              }
-            `}</style>
-          </div>
-        </div>
-      </div>
+      <Know
+        answer={answer}
+        confetti={confetti}
+        answeredHearts={answeredHearts}
+        isMobile={isMobile}
+        emojis={emojis}
+      />
     );
   }
 
