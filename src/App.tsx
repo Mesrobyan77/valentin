@@ -170,7 +170,9 @@ function App() {
               onTouchStart={handleNoHover}
               onClick={handleNoHover}
               className={`w-full sm:w-auto bg-gray-400 text-white px-10 py-4 sm:px-16 sm:py-6 rounded-full text-2xl sm:text-3xl font-black shadow-lg transition-all duration-200 ${
-                noButtonPosition ? "fixed w-[100px] flex items-center justify-center" : "relative "
+                noButtonPosition 
+                  ? "fixed !w-[140px] !h-[60px] sm:!w-[180px] sm:!h-[80px] flex items-center justify-center p-0" 
+                  : "relative"
               }`}
               style={{
                 left: noButtonPosition ? `${noButtonPosition.x}px` : "auto",
