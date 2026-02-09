@@ -18,8 +18,14 @@ function App() {
   const glowRef = useRef<HTMLDivElement | null>(null);
   const mousePosRef = useRef({ x: 0, y: 0 });
 
+  const emojis = [
+    "💖", "✨", "🌸", "🎀", "💫", "💋", "💛", "💚", "💘", "🥰",
+    "💗", "💓", "💞", "💝", "🧸", "🎁",, "🌺", "💎",
+    "🌹", "💐", "🎈", "🩷", "🤍", "💌", "🌙"
+  ];
+
   const floatingHearts = useMemo(() => {
-    return [...Array(150)].map((_, i) => ({
+    return [...Array(700)].map((_, i) => ({
       id: i,
       left: Math.random() * 100,
       top: Math.random() * 100,
@@ -28,12 +34,12 @@ function App() {
   }, []);
 
   const answeredHearts = useMemo(() => {
-    return [...Array(150)].map((_, i) => ({
+    return [...Array(600)].map((_, i) => ({
       id: i,
       left: Math.random() * 100,
       size: 20 + Math.random() * 30,
       delay: Math.random() * 5,
-      duration: 15 + Math.random() * 10,
+      duration: 12 + Math.random() * 8,
     }));
   }, []);
 
@@ -65,14 +71,8 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleYesClick = () => {
-    setAnswer("yes");
-    setAnswered(true);
-    triggerConfetti();
-  };
-
   const triggerConfetti = () => {
-    const newConfetti = [...Array(40)].map((_, i) => ({
+    const newConfetti = [...Array(400)].map((_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
@@ -81,23 +81,25 @@ function App() {
     setConfetti(newConfetti);
   };
 
+  const handleYesClick = () => {
+    setAnswer("yes");
+    setAnswered(true);
+    triggerConfetti();
+  };
+
   const handleNoHover = () => {
     if (!containerRef.current) return;
 
     const rect = containerRef.current.getBoundingClientRect();
 
-    const btnWidth = window.innerWidth < 640 ? 100 : 120;
-    const btnHeight = window.innerWidth < 640 ? 50 : 60;
-    const padding = 20;
+    const btnWidth = window.innerWidth < 540 ? 100 : 120;
+    const btnHeight = window.innerWidth < 540 ? 50 : 60;
+    const padding = 0;
 
     let newX =
-      Math.random() * (rect.width - btnWidth - 2 * padding) +
-      rect.left +
-      padding;
+      Math.random() * (rect.width - btnWidth - 2 * padding) -btnWidth
     let newY =
-      Math.random() * (rect.height - btnHeight - 2 * padding) +
-      rect.top +
-      padding;
+      Math.random() * (rect.height - btnHeight - 2 * padding) -btnWidth;
 
     newX = Math.min(
       Math.max(padding, newX),
@@ -119,12 +121,9 @@ function App() {
     }
   };
 
-  const emojis = ["💖", "✨", "🌸", "🎀", "💫"];
-
   if (answered) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-red-50 flex items-center justify-center p-4 overflow-hidden relative">
-        {/* Animated Background Elements */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           {answeredHearts.map((h) => (
             <span
@@ -144,8 +143,7 @@ function App() {
         </div>
 
         <div className="text-center z-10 w-full max-w-lg animate-scaleIn">
-          <div className="bg-white/90 backdrop-blur-xl rounded-[30px] sm:rounded-[40px] shadow-2xl p-8 sm:p-16 border-2 border-pink-200/50">
-            {/* was <Heart .../> */}
+          <div className="bg-white/90 backdrop-blur-xl rounded-[40px] shadow-2xl p-8 sm:p-16 border-2 border-pink-200/50">
             <div className="mx-auto mb-6 flex items-center justify-center">
               <span className="animate-heartbeat text-[80px] sm:text-[128px]">
                 💖
@@ -155,9 +153,11 @@ function App() {
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-black bg-gradient-to-r from-red-500 to-rose-500 bg-clip-text text-transparent mb-4">
               Tenc el pti liner
             </h1>
+
             <p className="text-xl sm:text-2xl text-pink-600 font-bold mb-8 animate-bounce">
               Forever your DODO 💕
             </p>
+
 
             {answer === "yes" &&
               confetti.map((item) => (
@@ -167,14 +167,8 @@ function App() {
                   style={{
                     left: `${item.x}%`,
                     top: `-10px`,
-                    background: [
-                      "#ff69b4",
-                      "#ff1493",
-                      "#ffc0cb",
-                      "#ffb6d9",
-                      "#ff69b4",
-                    ][Math.floor(Math.random() * 5)],
-                    animation: `fall ${2 + Math.random() * 2}s linear forwards`,
+                    background: "#ff69b4",
+                    animation: `fall ${5 + Math.random() * 5}s linear forwards`,
                     animationDelay: `${item.delay}s`,
                     borderRadius: "50%",
                     boxShadow: "0 0 10px currentColor",
@@ -182,7 +176,21 @@ function App() {
                 />
               ))}
 
-            <style>{`@keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }`}</style>
+            <style>{`
+              @keyframes fall {
+                to { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+              }
+              @keyframes floatHearts {
+                0% { transform: translateY(0); opacity: 0; }
+                10% { opacity: 1; }
+                100% { transform: translateY(-120vh) rotate(25deg); opacity: 0; }
+              }
+              .animate-float-hearts {
+                animation-name: floatHearts;
+                animation-timing-function: linear;
+                animation-iteration-count: infinite;
+              }
+            `}</style>
           </div>
         </div>
       </div>
@@ -204,72 +212,41 @@ function App() {
         }
       `}</style>
 
-      {/* mouse-follow glow layer */}
       <div
         ref={glowRef}
         className="absolute inset-0 pointer-events-none"
         style={{
           ["--mx" as any]: "50%",
           ["--my" as any]: "50%",
-          zIndex: 5, // ✅ above background, below your content (content has z-10)
+          zIndex: 5,
           background:
-            "radial-gradient(360px circle at var(--mx) var(--my), rgba(255, 255, 255, 0.70), rgba(255, 255, 255, 0.20) 35%, transparent 70%)",
-          mixBlendMode: "screen", // ✅ makes it pop on pink backgrounds
-          opacity: 1,
+            "radial-gradient(360px circle at var(--mx) var(--my), rgba(255,255,255,0.7), rgba(255,255,255,0.2) 35%, transparent 70%)",
+          mixBlendMode: "screen",
         }}
       />
 
-      {/* Floating Icons (stable positions) */}
-      <div
-        className="absolute top-10 right-10 text-6xl animate-bounce opacity-70"
-        style={{ animationDelay: "0s" }}
-      >
-        ✨
-      </div>
-      <div
-        className="absolute bottom-20 left-10 text-5xl animate-bounce opacity-70"
-        style={{ animationDelay: "0.5s" }}
-      >
-        🌹
-      </div>
-      <div
-        className="absolute top-1/3 left-20 text-4xl animate-bounce opacity-70"
-        style={{ animationDelay: "0.2s" }}
-      >
-        💖
-      </div>
-      <div
-        className="absolute bottom-1/4 right-20 text-5xl animate-bounce opacity-70"
-        style={{ animationDelay: "0.7s" }}
-      >
-        ✨
-      </div>
-
-      <div className="absolute inset-0 pointer-events-none" style={{zIndex:1}}>
-        {floatingHearts.map((h) => {
-          return (
-            <span
-              key={h.id}
-              className="absolute animate-float text-3xl"
-              style={{
-                left: `${h.left}%`,
-                top: `${h.top}%`,
-                animationDelay: `${h.delay}s`,
-              }}
-            >
-              {emojis[h.id % emojis.length]}
-            </span>
-          );
-        })}
+      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
+        {floatingHearts.map((h) => (
+          <span
+            key={h.id}
+            className="absolute animate-float text-3xl"
+            style={{
+              left: `${h.left}%`,
+              top: `${h.top}%`,
+              animationDelay: `${h.delay}s`,
+            }}
+          >
+            {emojis[h.id % emojis.length]}
+          </span>
+        ))}
       </div>
 
       <div className="text-center z-10 w-full max-w-4xl px-2">
         <div
           ref={containerRef}
-          className="bg-white/95 backdrop-blur-md rounded-[30px] sm:rounded-[40px] shadow-2xl p-6 sm:p-12 md:p-16 border border-white/50"
+          className="bg-white/95 backdrop-blur-md rounded-[40px] shadow-2xl p-6 sm:p-12 md:p-16 border border-white/50"
         >
-          {/* was Sparkles + Heart + Sparkles */}
-          <div className="flex justify-center gap-2 sm:gap-4 mb-6 sm:mb-10 text-4xl sm:text-5xl">
+          <div className="flex justify-center gap-4 mb-6 text-4xl sm:text-5xl">
             <span className="animate-spin">✨</span>
             <span className="animate-heartbeat">💖</span>
             <span className="animate-spin">🌸</span>
@@ -323,4 +300,3 @@ function App() {
 }
 
 export default App;
-``;
