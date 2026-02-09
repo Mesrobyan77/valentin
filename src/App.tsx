@@ -261,88 +261,28 @@ function App() {
         className="absolute inset-0 pointer-events-none overflow-hidden"
         style={{ zIndex: 1 }}
       >
-        {floatingHearts.map((h, i) =>
-          i % 2 === 0 ? (
-            <>
-              <span
-                key={h.id}
-                className="absolute text-3xl"
-                style={{
-                  left: `${h.left}%`,
-                  top: `${h.top}%`,
-                  animationDuration: `${21 + (h.id % 5)}s`,
-                  animationDelay: "0s",
-                  animationName: "float-around",
-                  animationIterationCount: "infinite",
-                  animationTimingFunction: "ease-in-out",
-                }}
-              >
-                {emojis[h.id % emojis.length]}
-              </span>
-              <span
-                key={h.id}
-                className="absolute text-3xl"
-                style={{
-                  left: `${h.left}%`,
-                  top: `${h.top}%`,
-                  animationDuration: `${21 + (h.id % 5)}s`,
-                  animationDelay: "0s",
-                  animationName: "animate-float-reverse",
-                  animationIterationCount: "infinite",
-                  animationTimingFunction: "ease-in-out",
-                }}
-              >
-                {emojis[h.id % emojis.length]}
-              </span>
-              <span
-                key={h.id}
-                className="absolute text-3xl"
-                style={{
-                  left: `${h.left}%`,
-                  top: `${h.top}%`,
-                  animationDuration: `${21 + (h.id % 5)}s`,
-                  animationDelay: "0s",
-                  animationName: "animate-float-up",
-                  animationIterationCount: "infinite",
-                  animationTimingFunction: "ease-in-out",
-                }}
-              >
-                {emojis[h.id % emojis.length]}
-              </span>
-              <span
-                key={h.id}
-                className="absolute text-3xl"
-                style={{
-                  left: `${h.left}%`,
-                  top: `${h.top}%`,
-                  animationDuration: `${21 + (h.id % 5)}s`,
-                  animationDelay: "0s",
-                  animationName: "animate-float-down",
-                  animationIterationCount: "infinite",
-                  animationTimingFunction: "ease-in-out",
-                }}
-              >
-                {emojis[h.id % emojis.length]}
-              </span>
-            </>
-          ) : (
-            <span
-              key={h.id}
-              className="absolute text-2xl"
-              style={{
-                left: `${h.left}%`,
-                top: `${h.top}%`,
-                animationDuration: `${15 + (h.id % 5)}s`,
-                animationDelay: "0s",
-                animationName: "float-around-reverse",
-                animationIterationCount: "infinite",
-                animationTimingFunction: "ease-in-out",
-              }}
-            >
-              {emojis[h.id % emojis.length]}
-            </span>
-          )
-        )}
+        {floatingHearts.map((h, i) => (
+          <span
+            key={h.id}
+            className={`emoji absolute ${
+              i % 2 === 0 ? "text-3xl" : "text-2xl"
+            }`}
+            style={{
+              left: `${h.left}%`,
+              top: `${h.top}%`,
+              animationDuration: `${i % 2 === 0 ? 28 : 18}s`,
+              animationDelay: i % 2 == 0 ? `${h.delay}s` : `${h.delay + 2}s`,
+              animationName: i % 2 === 0 ? "float-right-down" : "float-left-up",
+              animationIterationCount: "infinite",
+              animationTimingFunction:
+                i % 3 == 0
+                  ? "steps(3, end)"
+                  : "cubic-bezier(0.45, 0.05, 0.55, 0.45)",
+            }}
+          >
+            {emojis[h.id % emojis.length]}
+          </span>
+        ))}
       </div>
 
       <div className="text-center z-10 w-full max-w-4xl px-2">
