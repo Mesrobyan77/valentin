@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Heart, Sparkles, Star } from "lucide-react";
 
 function App() {
   const [answered, setAnswered] = useState(false);
@@ -20,7 +19,7 @@ function App() {
   const mousePosRef = useRef({ x: 0, y: 0 });
 
   const floatingHearts = useMemo(() => {
-    return [...Array( 50)].map((_, i) => ({
+    return [...Array(150)].map((_, i) => ({
       id: i,
       left: Math.random() * 100,
       top: Math.random() * 100,
@@ -29,7 +28,7 @@ function App() {
   }, []);
 
   const answeredHearts = useMemo(() => {
-    return [...Array(50)].map((_, i) => ({
+    return [...Array(150)].map((_, i) => ({
       id: i,
       left: Math.random() * 100,
       size: 20 + Math.random() * 30,
@@ -44,7 +43,6 @@ function App() {
     const handleMouseMove = (e: MouseEvent) => {
       mousePosRef.current = { x: e.clientX, y: e.clientY };
 
-      // update the glow smoothly without re-rendering
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         if (!glowRef.current) return;
@@ -88,12 +86,10 @@ function App() {
 
     const rect = containerRef.current.getBoundingClientRect();
 
-    // small screens: smaller button math
     const btnWidth = window.innerWidth < 640 ? 100 : 120;
     const btnHeight = window.innerWidth < 640 ? 50 : 60;
     const padding = 20;
 
-    // random inside the card rect (in viewport px)
     let newX =
       Math.random() * (rect.width - btnWidth - 2 * padding) +
       rect.left +
@@ -103,7 +99,6 @@ function App() {
       rect.top +
       padding;
 
-    // clamp to screen
     newX = Math.min(
       Math.max(padding, newX),
       window.innerWidth - btnWidth - padding
@@ -124,29 +119,39 @@ function App() {
     }
   };
 
+  const emojis = ["💖", "✨", "🌸", "🎀", "💫"];
+
   if (answered) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-red-50 flex items-center justify-center p-4 overflow-hidden relative">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           {answeredHearts.map((h) => (
-            <Heart
+            <span
               key={h.id}
-              className="absolute text-pink-300/40 animate-float-hearts"
+              className="absolute animate-float-hearts"
               style={{
                 left: `${h.left}%`,
                 top: "110%",
-                width: `${h.size}px`,
+                fontSize: `${Math.max(18, h.size)}px`,
                 animationDelay: `${h.delay}s`,
                 animationDuration: `${h.duration}s`,
               }}
-            />
+            >
+              {emojis[h.id % emojis.length]}
+            </span>
           ))}
         </div>
 
         <div className="text-center z-10 w-full max-w-lg animate-scaleIn">
           <div className="bg-white/90 backdrop-blur-xl rounded-[30px] sm:rounded-[40px] shadow-2xl p-8 sm:p-16 border-2 border-pink-200/50">
-            <Heart className="w-20 h-20 sm:w-32 sm:h-32 text-red-500 mx-auto animate-heartbeat mb-6" />
+            {/* was <Heart .../> */}
+            <div className="mx-auto mb-6 flex items-center justify-center">
+              <span className="animate-heartbeat text-[80px] sm:text-[128px]">
+                💖
+              </span>
+            </div>
+
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-black bg-gradient-to-r from-red-500 to-rose-500 bg-clip-text text-transparent mb-4">
               Tenc el pti liner
             </h1>
@@ -199,38 +204,61 @@ function App() {
         }
       `}</style>
 
-      {/* ✅ NEW: mouse-follow glow layer (no rerender needed) */}
+      {/* mouse-follow glow layer */}
       <div
         ref={glowRef}
         className="absolute inset-0 pointer-events-none"
         style={{
-          // defaults until first mouse move
           ["--mx" as any]: "50%",
           ["--my" as any]: "50%",
+          zIndex: 5, // ✅ above background, below your content (content has z-10)
           background:
-            "radial-gradient(220px circle at var(--mx) var(--my), rgba(255, 255, 255, 0.35), transparent 65%)",
+            "radial-gradient(360px circle at var(--mx) var(--my), rgba(255, 255, 255, 0.70), rgba(255, 255, 255, 0.20) 35%, transparent 70%)",
+          mixBlendMode: "screen", // ✅ makes it pop on pink backgrounds
+          opacity: 1,
         }}
       />
 
       {/* Floating Icons (stable positions) */}
+      <div
+        className="absolute top-10 right-10 text-6xl animate-bounce opacity-70"
+        style={{ animationDelay: "0s" }}
+      >
+        ✨
+      </div>
+      <div
+        className="absolute bottom-20 left-10 text-5xl animate-bounce opacity-70"
+        style={{ animationDelay: "0.5s" }}
+      >
+        🌹
+      </div>
+      <div
+        className="absolute top-1/3 left-20 text-4xl animate-bounce opacity-70"
+        style={{ animationDelay: "0.2s" }}
+      >
+        💖
+      </div>
+      <div
+        className="absolute bottom-1/4 right-20 text-5xl animate-bounce opacity-70"
+        style={{ animationDelay: "0.7s" }}
+      >
+        ✨
+      </div>
 
-      <div className="absolute top-10 right-10 text-6xl animate-bounce opacity-70" style={{animationDelay: '0s'}}>✨</div>
-      <div className="absolute bottom-20 left-10 text-5xl animate-bounce opacity-70" style={{animationDelay: '0.5s'}}>🌹</div>
-      <div className="absolute top-1/3 left-20 text-4xl animate-bounce opacity-70" style={{animationDelay: '0.2s'}}>💖</div>
-      <div className="absolute bottom-1/4 right-20 text-5xl animate-bounce opacity-70" style={{animationDelay: '0.7s'}}>✨</div>
-      <div className="absolute inset-0 pointer-events-none opacity-30">
+      <div className="absolute inset-0 pointer-events-none" style={{zIndex:1}}>
         {floatingHearts.map((h) => {
           return (
-            <Heart
+            <span
               key={h.id}
-              className="absolute animate-float"
+              className="absolute animate-float text-3xl"
               style={{
                 left: `${h.left}%`,
                 top: `${h.top}%`,
-                animationDelay: `${5}s`,
+                animationDelay: `${h.delay}s`,
               }}
-              size={24 + Math.random() * 8 + 24}
-            />
+            >
+              {emojis[h.id % emojis.length]}
+            </span>
           );
         })}
       </div>
@@ -240,10 +268,11 @@ function App() {
           ref={containerRef}
           className="bg-white/95 backdrop-blur-md rounded-[30px] sm:rounded-[40px] shadow-2xl p-6 sm:p-12 md:p-16 border border-white/50"
         >
-          <div className="flex justify-center gap-2 sm:gap-4 mb-6 sm:mb-10">
-            <Sparkles className="w-8 h-8 sm:w-12 sm:h-12 text-yellow-400 animate-spin" />
-            <Heart className="w-10 h-10 sm:w-14 sm:h-14 text-red-500 animate-heartbeat" />
-            <Sparkles className="w-8 h-8 sm:w-12 sm:h-12 text-pink-400 animate-spin" />
+          {/* was Sparkles + Heart + Sparkles */}
+          <div className="flex justify-center gap-2 sm:gap-4 mb-6 sm:mb-10 text-4xl sm:text-5xl">
+            <span className="animate-spin">✨</span>
+            <span className="animate-heartbeat">💖</span>
+            <span className="animate-spin">🌸</span>
           </div>
 
           <h1 className="text-4xl sm:text-6xl md:text-7xl font-black mb-4 bg-gradient-to-r from-red-500 via-pink-500 to-rose-500 bg-clip-text text-transparent leading-tight">
@@ -294,3 +323,4 @@ function App() {
 }
 
 export default App;
+``;
