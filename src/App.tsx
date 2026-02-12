@@ -19,7 +19,7 @@ function App() {
   const glowRef = useRef<HTMLDivElement | null>(null);
   const mousePosRef = useRef({ x: 0, y: 0 });
 
-  const emojis:string[] = [
+  const emojis: string[] = [
     "💖",
     "✨",
     "🌸",
@@ -248,7 +248,7 @@ function App() {
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center relative min-h-[100px] sm:min-h-[150px]">
             <button
               onClick={handleYesClick}
-              className="w-full sm:w-auto bg-gradient-to-r from-red-500 to-pink-500 text-white px-10 py-4 sm:px-16 sm:py-6 rounded-full text-2xl sm:text-3xl font-black shadow-xl hover:scale-110 transition-transform z-20"
+              className="w-full sm:w-auto bg-gradient-to-r from-red-500 to-pink-500 text-white px-10 py-4 sm:px-16 sm:py-6 rounded-full text-2xl sm:text-3xl font-black shadow-xl hover:scale-110 transition-transform z-50"
               style={{ transform: `scale(${yesButtonScale})` }}
             >
               Yes! ✨
@@ -268,7 +268,7 @@ function App() {
                 left: noButtonPosition ? `${noButtonPosition.x}px` : "auto",
                 top: noButtonPosition ? `${noButtonPosition.y}px` : "auto",
                 transform: `rotate(${noButtonRotation}deg) scale(${noButtonScale})`,
-                zIndex: 50,
+                zIndex: 10,
               }}
             >
               No
